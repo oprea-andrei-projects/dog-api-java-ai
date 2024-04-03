@@ -2,9 +2,11 @@ package com.example.ai.testController;
 
 import com.example.ai.test.ChatRequest;
 import com.example.ai.test.ChatResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +14,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
+@RequestMapping("/api/dogs")
+@CrossOrigin
 public class ChatController {
 
     @Qualifier("openaiRestTemplate")
@@ -23,6 +27,14 @@ public class ChatController {
 
     @Value("${openai.api.url}")
     private String apiUrl;
+
+    private ObjectMapper objectMapper;
+
+    public ChatController(RestTemplate restTemplate, ObjectMapper objectMapper) {
+        this.restTemplate = restTemplate;
+
+        this.objectMapper = objectMapper;
+    }
 
 //    @CrossOrigin(origins = "http://localhost:4200")
 //    @GetMapping("/chat")
@@ -46,11 +58,10 @@ public class ChatController {
 //
 //    }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/chat")
     public ResponseEntity<String> chat(@RequestParam String prompt) {
         ChatRequest request = new ChatRequest(model, prompt, 1);
-
 
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(apiUrl, request, String.class);
 
@@ -68,4 +79,8 @@ public class ChatController {
                     .body("{\"error\": \"Failed to get response from OpenAI\"}");
         }
     }
+
+
+
+
 }
